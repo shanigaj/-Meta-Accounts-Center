@@ -1,0 +1,130 @@
+// Meta Accounts Center — data model.
+// Kept normalized: profile, security and privacy live in their own tables so
+// each concern can grow independently. Sessions double as the "connected
+// devices" list, and every meaningful change writes an ActivityLog row.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Provider {
+  FACEBOOK
+  INSTAGRAM
+  WHATSAPP
+}
+
+enum Visibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+  PROFILE_UPDATE
+  ACCOUNT_CONNECTED
+  ACCOUNT_REMOVED
+  PRIVACY_UPDATE
+  TWO_FACTOR_TOGGLE
+  DEVICE_REMOVED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  dateOfBirth  DateTime?
+  avatarUrl    String?
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  security         SecuritySettings?
+  privacy          PrivacySettings?
+  sessions         Session[]
+  connectedAccounts ConnectedAccount[]
+  activities       ActivityLog[]
+}
+
+model SecuritySettings {
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  twoFactorEnabled Boolean @default(false)
+  emailVerified    Boolean @default(false)
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PrivacySettings {
+  id              String     @id @default(cuid())
+  userId          String     @unique
+  profileVisibility Visibility @default(FRIENDS)
+  emailVisibility Visibility @default(PRIVATE)
+  phoneVisibility Visibility @default(PRIVATE)
+  personalizedAds Boolean    @default(true)
+  dataSharing     Boolean    @default(false)
+  updatedAt       DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ConnectedAccount {
+  id               String   @id @default(cuid())
+  userId           String
+  provider         Provider
+  providerUsername String
+  connectedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One provider can only be linked once per user.
+  @@unique([userId, provider])
+}
+
+// A refresh-token backed session. Also carries the device metadata shown in
+// both the Security Center and Device Management screens.
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  refreshTokenHash String
+  deviceName       String
+  browser          String
+  os               String
+  ipAddress        String
+  isActive         Boolean  @default(true)
+  lastActiveAt     DateTime @default(now())
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ActivityLog {
+  id         String       @id @default(cuid())
+  userId     String
+  type       ActivityType
+  deviceName String
+  browser    String
+  ipAddress  String
+  createdAt  DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

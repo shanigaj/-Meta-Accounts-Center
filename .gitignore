@@ -1,0 +1,20 @@
+/node_modules
+/.next
+/out
+/build
+
+.env
+.env*.local
+
+npm-debug.log*
+yarn-error.log*
+
+.DS_Store
+*.pem
+.vscode
+
+# generated on install by scripts/copy-swagger.mjs
+/public/swagger
+
+# local build log
+acbuild.log

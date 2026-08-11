@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 244 245 247;
+  --surface: 255 255 255;
+  --elevated: 255 255 255;
+  --border: 226 228 233;
+  --text: 24 27 33;
+  --muted: 110 116 128;
+  --brand: 5 150 105; /* emerald */
+  --brand-soft: 209 250 229;
+  --danger: 220 53 69;
+  --success: 34 160 92;
+  --warning: 214 158 46;
+}
+
+.dark {
+  --bg: 15 17 21;
+  --surface: 24 27 33;
+  --elevated: 32 36 44;
+  --border: 44 49 58;
+  --text: 233 236 240;
+  --muted: 148 155 166;
+  --brand: 16 185 129;
+  --brand-soft: 10 46 35;
+  --danger: 240 90 102;
+  --success: 61 190 122;
+  --warning: 234 180 76;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Skeleton shimmer used by loading states */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgb(var(--border) / 0.55);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--surface) / 0.35),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+/* Thin, unobtrusive scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 999px;
+}
