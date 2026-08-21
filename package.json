@@ -13,7 +13,7 @@
     "db:studio": "prisma studio",
     "test": "vitest run",
     "test:watch": "vitest",
-    "postinstall": "node scripts/copy-swagger.mjs"
+    "postinstall": "prisma generate && node scripts/copy-swagger.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
